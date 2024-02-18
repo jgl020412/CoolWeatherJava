@@ -13,4 +13,4 @@
 .externalNativeBuild
 .cxx
 local.properties
-./app/src/main/res/raw/config.properties
+app/src/main/res/raw/config.properties
