@@ -1,14 +1,25 @@
 package com.example.coolweatherjava.util;
 
+import android.content.Context;
 import android.text.TextUtils;
 
+import com.example.coolweatherjava.R;
 import com.example.coolweatherjava.db.City;
 import com.example.coolweatherjava.db.County;
 import com.example.coolweatherjava.db.Province;
+import com.example.coolweatherjava.gson.Forecast;
+import com.example.coolweatherjava.gson.Weather;
+import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Properties;
 
 public class Utility {
 
@@ -70,7 +81,8 @@ public class Utility {
                     JSONObject countyObject = allCounties.getJSONObject(i);
                     County county = new County();
                     county.setCountyName(countyObject.getString("name"));
-                    county.setWeatherId(countyObject.getString("weather_id"));
+                    String weatherId = countyObject.getString("weather_id");
+                    county.setWeatherId(weatherId.substring(2));
                     county.setCityId(cityId);
                     county.save();
                 }
@@ -81,4 +93,42 @@ public class Utility {
         }
         return false;
     }
+
+    public static Weather handleWeatherResponse(String response) {
+        try {
+            JSONObject jsonObject = new JSONObject(response);
+            return new Gson().fromJson(jsonObject.toString(), Weather.class);
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Forecast handleForecastResponse(String response) {
+        try {
+            JSONObject jsonObject = new JSONObject(response);
+            return new Gson().fromJson(jsonObject.toString(), Forecast.class);
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static String getConfig(Context context, String str) {
+        InputStream inputStream = context.getResources().openRawResource(R.raw.config);
+        Properties properties = new Properties();
+        try {
+            properties.load(inputStream);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        String key = properties.getProperty(str);
+        return key;
+    }
+
+    public static String changeDate(String str, String format) {
+        OffsetDateTime offsetDateTime = OffsetDateTime.parse(str);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
+        String formattedDateTime = formatter.format(offsetDateTime);
+        return formattedDateTime;
+    }
+
 }
