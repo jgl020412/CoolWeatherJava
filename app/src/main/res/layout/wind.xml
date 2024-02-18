@@ -14,7 +14,7 @@
         android:textColor="#fff"
         android:layout_gravity="left"
         android:text="风向"
-        android:textSize="35dp" />
+        android:textSize="30dp" />
 
     <TextView
         android:id="@+id/wind_dir_angle"
@@ -25,7 +25,7 @@
         android:textColor="#fff"
         android:layout_gravity="left"
         android:text="风角度"
-        android:textSize="35dp" />
+        android:textSize="30dp" />
 
     <TextView
         android:id="@+id/wind_scale"
@@ -36,7 +36,7 @@
         android:textColor="#fff"
         android:layout_gravity="left"
         android:text="风等级"
-        android:textSize="35dp" />
+        android:textSize="30dp" />
 
     <TextView
         android:id="@+id/wind_speed"
@@ -47,6 +47,6 @@
         android:textColor="#fff"
         android:layout_gravity="left"
         android:text="风速"
-        android:textSize="35dp" />
+        android:textSize="30dp" />
 
 </GridLayout>
