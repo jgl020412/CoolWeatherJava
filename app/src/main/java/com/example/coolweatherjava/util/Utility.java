@@ -1,6 +1,7 @@
 package com.example.coolweatherjava.util;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.text.TextUtils;
 
 import com.example.coolweatherjava.R;
@@ -129,6 +130,16 @@ public class Utility {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
         String formattedDateTime = formatter.format(offsetDateTime);
         return formattedDateTime;
+    }
+
+    /**
+     * 根据资源名称和类型获取资源id
+     */
+    public static int getResourceIdByName(Context context, String resourceName, String resourceType) {
+        Resources resources = context.getResources();
+        String packageName = context.getPackageName();
+        int resourceId = resources.getIdentifier(resourceName, resourceType, packageName);
+        return resourceId;
     }
 
 }

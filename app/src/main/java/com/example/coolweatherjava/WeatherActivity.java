@@ -37,7 +37,7 @@ public class WeatherActivity extends AppCompatActivity {
     private TextView titleCity;
     private TextView titleUpdateTime;
     private TextView weatherObsTime;
-//    private ImageView weatherIcon;
+    private ImageView weatherIcon;
     private TextView weatherInfoText;
     private TextView degreeText;
     private LinearLayout forecastLayout;
@@ -56,7 +56,7 @@ public class WeatherActivity extends AppCompatActivity {
         titleCity = (TextView) findViewById(R.id.title_city);
         titleUpdateTime = (TextView) findViewById(R.id.title_update_time);
         weatherObsTime = (TextView) findViewById(R.id.weather_obsTime);
-//        weatherIcon = (ImageView) findViewById(R.id.weather_icon);
+        weatherIcon = (ImageView) findViewById(R.id.weather_icon);
         weatherInfoText = (TextView) findViewById(R.id.weather_info_text);
         degreeText = (TextView) findViewById(R.id.degree_text);
         forecastLayout = (LinearLayout) findViewById(R.id.forecast_layout);
@@ -177,9 +177,10 @@ public class WeatherActivity extends AppCompatActivity {
         String windSpeed = now.windSpeed;
         titleUpdateTime.setText(Utility.changeDate(updateTime, "MM月dd日 HH:mm:ss"));
         weatherObsTime.setText(Utility.changeDate(obsTime, "yyyy年MM月dd日"));
-//        String filePath = "\\weather-icon\\" + iconCode + ".svg";
-//        Bitmap bitmap = BitmapFactory.decodeFile(filePath);
-//        weatherIcon.setImageBitmap(bitmap);
+        String fileName = "ic_" + iconCode;
+        int resourceId = Utility.getResourceIdByName(WeatherActivity.this, fileName, "drawable");
+        weatherIcon.setImageResource(resourceId);
+        Log.d(TAG, "showNowWeatherInfo: " + resourceId + "---" + fileName);
         weatherInfoText.setText(weatherInfo);
         degreeText.setText(temperature + "\u2103");
         this.windDir.setText("风向：" + windDir);
