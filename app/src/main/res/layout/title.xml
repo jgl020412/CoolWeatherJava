@@ -3,12 +3,22 @@
     android:layout_width="match_parent"
     android:layout_height="?attr/actionBarSize">
 
+    <Button
+        android:id="@+id/nav_button"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="10dp"
+        android:background="@drawable/ic_home" />
+
     <TextView
         android:id="@+id/title_city"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:textColor="#fff"
+        android:text="城市"
         android:textSize="20sp" />
 
     <TextView
@@ -19,6 +29,7 @@
         android:layout_centerVertical="true"
         android:layout_marginRight="10dp"
         android:textColor="#fff"
+        android:text="00月00日 00:00"
         android:textSize="16sp" />
 
 </RelativeLayout>

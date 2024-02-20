@@ -3,8 +3,10 @@ package com.example.coolweatherjava;
 import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -107,8 +109,18 @@ public class ChooseAreaFragment extends Fragment {
                     Intent intent = new Intent(getActivity(), WeatherActivity.class);
                     intent.putExtra("weather_id", weatherId);
                     intent.putExtra("location", location);
+                    SharedPreferences.Editor editor = PreferenceManager
+                            .getDefaultSharedPreferences(getActivity())
+                            .edit();
+                    editor.clear();
+                    editor.apply();
                     startActivity(intent);
-                    getActivity().finish();
+                    if (getActivity() instanceof WeatherActivity) {
+                        WeatherActivity activity = (WeatherActivity) getActivity();
+                        activity.drawerLayout.closeDrawers();
+                    } else if (getActivity() instanceof MainActivity) {
+                        getActivity().finish();
+                    }
                 }
             }
         });

@@ -3,6 +3,8 @@ package com.example.coolweatherjava;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.SharedPreferences;
@@ -15,6 +17,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.webkit.URLUtil;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -57,6 +60,8 @@ public class WeatherActivity extends AppCompatActivity {
     private TextView humidity;
     private LinearLayout weather;
     public SwipeRefreshLayout swipeRefreshLayout;
+    public DrawerLayout drawerLayout;
+    private Button navButton;
     private String key;
 
     @Override
@@ -83,9 +88,13 @@ public class WeatherActivity extends AppCompatActivity {
         weather = (LinearLayout) findViewById(R.id.weather);
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh);
         swipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.colorPrimary));
+        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        navButton = (Button) findViewById(R.id.nav_button);
         Log.d(TAG, "onCreate: 各个组件初始化成功");
+
         key = Utility.getConfig(this, "weather.key");
 
+        // 获取城市名称
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String locationString = prefs.getString("location", null);
         if (locationString == null) {
@@ -96,6 +105,7 @@ public class WeatherActivity extends AppCompatActivity {
         }
         titleCity.setText(locationString);
 
+        // 获取天气id
         final String weatherId;
         if (prefs.getString("weather_id", null) == null) {
             weatherId = getIntent().getStringExtra("weather_id");
@@ -106,6 +116,7 @@ public class WeatherActivity extends AppCompatActivity {
             weatherId = prefs.getString("weatherId", null);
         }
 
+        // 加载实时天气
         String weatherString = prefs.getString("weather", null);
         if (weatherString != null) {
             // 有缓存直接解析天气数据
@@ -116,6 +127,7 @@ public class WeatherActivity extends AppCompatActivity {
             requestWeather(weatherId);
         }
 
+        // 加载预报天气
         String forecastString = prefs.getString("forecast", null);
         if (forecastString != null) {
             Forecast forecast = Utility.handleForecastResponse(forecastString);
@@ -124,11 +136,20 @@ public class WeatherActivity extends AppCompatActivity {
             requestForecast(weatherId);
         }
 
+        // 手动下拉刷新
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 requestWeather(weatherId);
                 requestForecast(weatherId);
+            }
+        });
+
+        // 切换城市
+        navButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                drawerLayout.openDrawer(GravityCompat.START);
             }
         });
     }
