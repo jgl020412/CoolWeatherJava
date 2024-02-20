@@ -7,6 +7,7 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -263,6 +264,9 @@ public class WeatherActivity extends AppCompatActivity {
         this.visibility.setText("能见度：" + visibility + "km");
         this.cloud.setText("云量：" + cloud + "%");
         loadBingPic();
+        Intent intent = new Intent(this, AutoUpdateService.class);
+        Log.d(TAG, "showNowWeatherInfo: 准备开启服务");
+        startService(intent);
     }
 
     /**
