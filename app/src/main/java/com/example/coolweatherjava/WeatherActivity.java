@@ -66,9 +66,17 @@ public class WeatherActivity extends AppCompatActivity {
         windSpeed = (TextView) findViewById(R.id.wind_speed);
         Log.d(TAG, "onCreate: 各个组件初始化成功");
         key = Utility.getConfig(this, "weather.key");
-        String location = getIntent().getStringExtra("location");
-        titleCity.setText(location);
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        String locationString = prefs.getString("location", null);
+        if (locationString == null) {
+            locationString = getIntent().getStringExtra("location");
+            SharedPreferences.Editor editor = PreferenceManager
+                    .getDefaultSharedPreferences(WeatherActivity.this)
+                    .edit();
+            editor.putString("location", locationString);
+            editor.apply();
+        }
+        titleCity.setText(locationString);
         String weatherString = prefs.getString("weather", null);
         if (weatherString != null) {
             // 有缓存直接解析天气数据
