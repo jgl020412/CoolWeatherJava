@@ -1,11 +1,13 @@
 package com.example.coolweatherjava;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -17,6 +19,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.example.coolweatherjava.gson.Daily;
 import com.example.coolweatherjava.gson.Forecast;
 import com.example.coolweatherjava.gson.Now;
@@ -45,6 +50,11 @@ public class WeatherActivity extends AppCompatActivity {
     private TextView windDirAngle;
     private TextView windScale;
     private TextView windSpeed;
+    private TextView cloud;
+    private TextView visibility;
+    private TextView precipitation;
+    private TextView humidity;
+    private LinearLayout weather;
     private String key;
 
     @Override
@@ -64,6 +74,11 @@ public class WeatherActivity extends AppCompatActivity {
         windDirAngle = (TextView) findViewById(R.id.wind_dir_angle);
         windScale = (TextView) findViewById(R.id.wind_scale);
         windSpeed = (TextView) findViewById(R.id.wind_speed);
+        cloud = (TextView) findViewById(R.id.cloud);
+        visibility = (TextView) findViewById(R.id.visibility);
+        precipitation = (TextView) findViewById(R.id.precipitation);
+        humidity = (TextView) findViewById(R.id.humidity);
+        weather = (LinearLayout) findViewById(R.id.weather);
         Log.d(TAG, "onCreate: 各个组件初始化成功");
         key = Utility.getConfig(this, "weather.key");
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -183,6 +198,10 @@ public class WeatherActivity extends AppCompatActivity {
         String windDirAngle = now.windAngle;
         String windScale = now.windScale;
         String windSpeed = now.windSpeed;
+        String humidity = now.humidity;
+        String precipitation = now.precipitation;
+        String visibility = now.visibility;
+        String cloud = now.cloud;
         titleUpdateTime.setText(Utility.changeDate(updateTime, "MM月dd日 HH:mm:ss"));
         weatherObsTime.setText(Utility.changeDate(obsTime, "yyyy年MM月dd日"));
         String fileName = "ic_" + iconCode;
@@ -193,8 +212,13 @@ public class WeatherActivity extends AppCompatActivity {
         degreeText.setText(temperature + "\u2103");
         this.windDir.setText("风向：" + windDir);
         this.windScale.setText("风等级：" + windScale);
-        this.windSpeed.setText("风速：" + windSpeed);
-        this.windDirAngle.setText("风角度：" + windDirAngle);
+        this.windSpeed.setText("风速：" + windSpeed + "km/h");
+        this.windDirAngle.setText("风角度：" + windDirAngle + "\u00B0");
+        this.humidity.setText("湿度：" + humidity + "%");
+        this.precipitation.setText("降水量：" + precipitation + "mm");
+        this.visibility.setText("能见度：" + visibility + "km");
+        this.cloud.setText("云量：" + cloud + "%");
+        loadBingPic();
     }
 
     /**
@@ -214,5 +238,43 @@ public class WeatherActivity extends AppCompatActivity {
             forecastDegree.setText(daily.minTemperature + "\u2103~" + daily.maxTemperature + "\u2103");
             forecastLayout.addView(view);
         }
+    }
+
+    /**
+     * 加载必应每日一图
+     */
+    private void loadBingPic() {
+        String requestBingPic = "https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1";
+        HttpUtil.sendOkHttpRequest(requestBingPic, new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                Toast.makeText(WeatherActivity.this, "加载图片失败", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                final String bingPic = response.body().string();
+                String imageUrl = Utility.handleBingPicResponseForImageURL(bingPic);
+                SharedPreferences.Editor editor = PreferenceManager
+                        .getDefaultSharedPreferences(WeatherActivity.this)
+                        .edit();
+                editor.putString("bing_pic", imageUrl);
+                editor.apply();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.d(TAG, "run: 设置必应图片" + imageUrl);
+                        Glide.with(getApplicationContext())
+                                .load(imageUrl)
+                                .into(new SimpleTarget<Drawable>() {
+                                    @Override
+                                    public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
+                                        weather.setBackground(resource);
+                                    }
+                                });
+                    }
+                });
+            }
+        });
     }
 }

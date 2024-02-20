@@ -8,7 +8,9 @@ import com.example.coolweatherjava.R;
 import com.example.coolweatherjava.db.City;
 import com.example.coolweatherjava.db.County;
 import com.example.coolweatherjava.db.Province;
+import com.example.coolweatherjava.gson.BingPic;
 import com.example.coolweatherjava.gson.Forecast;
+import com.example.coolweatherjava.gson.Image;
 import com.example.coolweatherjava.gson.Weather;
 import com.google.gson.Gson;
 
@@ -20,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Properties;
 
 public class Utility {
@@ -111,6 +114,20 @@ public class Utility {
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static String handleBingPicResponseForImageURL(String response) {
+        try {
+            JSONObject jsonObject = new JSONObject(response);
+            BingPic bingPic = new Gson().fromJson(jsonObject.toString(), BingPic.class);
+            List<Image> imageList = bingPic.imageList;
+            if (imageList.size() > 0) {
+                return "https://www.bing.com/" + imageList.get(0).url;
+            }
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+        return null;
     }
 
     public static String getConfig(Context context, String str) {
