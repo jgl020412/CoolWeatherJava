@@ -3,6 +3,7 @@ package com.example.coolweatherjava;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -55,6 +56,7 @@ public class WeatherActivity extends AppCompatActivity {
     private TextView precipitation;
     private TextView humidity;
     private LinearLayout weather;
+    public SwipeRefreshLayout swipeRefreshLayout;
     private String key;
 
     @Override
@@ -79,19 +81,31 @@ public class WeatherActivity extends AppCompatActivity {
         precipitation = (TextView) findViewById(R.id.precipitation);
         humidity = (TextView) findViewById(R.id.humidity);
         weather = (LinearLayout) findViewById(R.id.weather);
+        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh);
+        swipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.colorPrimary));
         Log.d(TAG, "onCreate: 各个组件初始化成功");
         key = Utility.getConfig(this, "weather.key");
+
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String locationString = prefs.getString("location", null);
         if (locationString == null) {
             locationString = getIntent().getStringExtra("location");
-            SharedPreferences.Editor editor = PreferenceManager
-                    .getDefaultSharedPreferences(WeatherActivity.this)
-                    .edit();
+            SharedPreferences.Editor editor = prefs.edit();
             editor.putString("location", locationString);
             editor.apply();
         }
         titleCity.setText(locationString);
+
+        final String weatherId;
+        if (prefs.getString("weather_id", null) == null) {
+            weatherId = getIntent().getStringExtra("weather_id");
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putString("weather_id", weatherId);
+            editor.apply();
+        } else {
+            weatherId = prefs.getString("weatherId", null);
+        }
+
         String weatherString = prefs.getString("weather", null);
         if (weatherString != null) {
             // 有缓存直接解析天气数据
@@ -99,17 +113,24 @@ public class WeatherActivity extends AppCompatActivity {
             showNowWeatherInfo(weather);
         } else {
             // 无缓存时去服务器查询天气
-            String weatherId = getIntent().getStringExtra("weather_id");
             requestWeather(weatherId);
         }
+
         String forecastString = prefs.getString("forecast", null);
         if (forecastString != null) {
             Forecast forecast = Utility.handleForecastResponse(forecastString);
             showForecastInfo(forecast);
         } else {
-            String weatherId = getIntent().getStringExtra("weather_id");
             requestForecast(weatherId);
         }
+
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                requestWeather(weatherId);
+                requestForecast(weatherId);
+            }
+        });
     }
 
     /**
@@ -145,6 +166,7 @@ public class WeatherActivity extends AppCompatActivity {
                                     "获取天气信息失败",
                                     Toast.LENGTH_SHORT).show();
                         }
+                        swipeRefreshLayout.setRefreshing(false);
                     }
                 });
             }
@@ -178,6 +200,7 @@ public class WeatherActivity extends AppCompatActivity {
                         editor.putString("forecast", responseText);
                         editor.apply();
                         showForecastInfo(forecast);
+                        swipeRefreshLayout.setRefreshing(false);
                     }
                 });
             }
@@ -202,7 +225,7 @@ public class WeatherActivity extends AppCompatActivity {
         String precipitation = now.precipitation;
         String visibility = now.visibility;
         String cloud = now.cloud;
-        titleUpdateTime.setText(Utility.changeDate(updateTime, "MM月dd日 HH:mm:ss"));
+        titleUpdateTime.setText(Utility.changeDate(updateTime, "MM月dd日 HH:mm"));
         weatherObsTime.setText(Utility.changeDate(obsTime, "yyyy年MM月dd日"));
         String fileName = "ic_" + iconCode;
         int resourceId = Utility.getResourceIdByName(WeatherActivity.this, fileName, "drawable");

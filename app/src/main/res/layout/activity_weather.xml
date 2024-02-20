@@ -1,26 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/swipe_refresh"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/colorPrimary"
-    android:orientation="vertical">
-
-    <include layout="@layout/title" />
+    android:layout_height="match_parent">
 
     <LinearLayout
-        android:id="@+id/weather"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_margin="15dp"
+        android:layout_height="match_parent"
+        android:background="@color/colorPrimary"
         android:orientation="vertical">
 
-        <include layout="@layout/now" />
 
-        <include layout="@layout/other" />
+        <include layout="@layout/title" />
+
+        <LinearLayout
+            android:id="@+id/weather"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="15dp"
+            android:orientation="vertical">
+
+            <include layout="@layout/now" />
+
+            <include layout="@layout/other" />
+
+        </LinearLayout>
+
+        <include layout="@layout/forecast" />
 
     </LinearLayout>
 
-    <include layout="@layout/forecast" />
-
-</LinearLayout>
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
